@@ -75,12 +75,13 @@ WSGI_APPLICATION = 'teammanagementsystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+#Please provide USER and PASSWORD below
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'teammanagementsystem',
-        'USER': 'root',
-        'PASSWORD': 'new-password',
+        'USER': '',
+        'PASSWORD': '',
         'HOST': 'localhost'
     }
 }

@@ -9,7 +9,8 @@ and deleting a team member
 Installations:
 1. Please install django_mysql module using pip install django-mysql command.
 2. This project used MySQL database. Please create the database manaully using CREATE DATABASE command with the name as teammanagementsystem
-3. Run migrations using python manage.py migrate on terminal after CD-ing to the project folder.
+3. In settings.py file under teammanagementsystem.teammanagementsystem folder, please provide user and password in DATABASES dictionary.
+4. Run migrations using python manage.py migrate on terminal after CD-ing to the project folder.
 
 Command to run server:
 python manage.py runserver
