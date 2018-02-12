@@ -1,38 +1,45 @@
-import json
-from django.core import serializers
 from django.db.utils import DataError
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseNotFound, HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from teammembers.models import Member
 
-# Below method translates list of query-able objects to json object
-def get_json(list_of_objects):
-	serialized_data = serializers.serialize('python', list_of_objects)
-
-	for item in serialized_data:
-		item['fields']['id'] = item['pk']
-
-	serialized_data_with_id = [item['fields'] for item in serialized_data]
-	json_array = json.dumps(serialized_data_with_id)
-	return json_array
 
 # Below view/endpoint returns a json array of all team members
 def members(request):
-	members_list = Member.objects.all()
-	json_array = get_json(members_list)
-	return HttpResponse(json_array)
+	members_list = Member.objects.values()
+	return JsonResponse({'results': list(members_list)})
 
+
+# Below view/endpoint accepts data form and saves the data into Member table;
+# returns a json array of the newly added team member along with the ID
 @csrf_exempt
 def add_member(request):
 	try:
-		m = Member(first_name = request.POST.get('first_name')
+		mem = Member(first_name = request.POST.get('first_name')
 			, last_name = request.POST.get('last_name')
 			, phone_number = request.POST.get('phone_number')
 			, email = request.POST.get('email')
 			, role = request.POST.get('role')
 			)
-		m.save()
-		output = get_json(Member.objects.filter(id=m.id))
-		return HttpResponse(output)
+		mem.save()
+		member = Member.objects.filter(id=mem.id).values()
+		return JsonResponse({'results': list(member)})
 	except DataError:
 		return HttpResponseBadRequest('Data Error occured; Please check the data you have entered is per standards.\n')
+
+
+# Below view/endpoint accepts data form and edits the data in the Member table using id column;
+# returns a json array of the newly modified team member along with the ID
+@csrf_exempt
+def edit_member(request):
+	if request.POST.get('id'):
+		mem = Member.objects.filter(id=request.POST.get('id'))
+		data_dict = {}
+		for key in request.POST.keys():
+			if key != 'id':
+				data_dict[key] = request.POST.get(key)
+		mem.update(**data_dict)
+		member = mem.values()
+		return JsonResponse({'results': list(member)})
+	else:
+		return HttpResponseNotFound('Please specify member id\n')
