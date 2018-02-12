@@ -1,5 +1,5 @@
 from django.db.utils import DataError
-from django.http import JsonResponse, HttpResponseNotFound, HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from teammembers.models import Member
 
@@ -43,3 +43,14 @@ def edit_member(request):
 		return JsonResponse({'results': list(member)})
 	else:
 		return HttpResponseNotFound('Please specify member id\n')
+
+
+# Below view/endpoint accepts data form and deletes the data in the Member table using id column
+@csrf_exempt
+def delete_member(request):
+	mem = Member.objects.filter(id=request.POST.get('id'))
+	if mem:
+		mem.delete()
+		return HttpResponse('Team member with unique id - %s has been deleted successfully\n' % request.POST.get('id'))
+	else:
+		return HttpResponseNotFound('Entered unique id is not present in the database\n')
